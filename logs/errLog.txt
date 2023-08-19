@@ -1,0 +1,5 @@
+20230811	03:59:52	15eae210-dfdf-4216-bf6a-bcee1e211144	Error: Not allowed by CORS
+20230811	19:42:38	a107ef24-5138-4a1c-98de-7f5cc5bd73d5	Error: ENOENT: no such file or directory, stat 'C:\Users\talha\Desktop\nodejs\node-practice\08-express-router\routes\views\index.html'
+20230811	19:42:43	3dd67437-7a94-4482-817a-37d89327b02a	Error: ENOENT: no such file or directory, stat 'C:\Users\talha\Desktop\nodejs\node-practice\08-express-router\routes\views\index.html'
+20230813	21:56:30	cfa9a800-6d3e-4b2b-8951-fff2da734928	Error: Cannot set headers after they are sent to the client
+20230813	21:59:10	615419d3-989d-4abe-842a-c735e99fd162	Error: Cannot set headers after they are sent to the client
