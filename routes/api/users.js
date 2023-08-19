@@ -6,7 +6,9 @@ const usersController = require("../../controllers/usersController")
 
 router
   .route("/")
-  .get(verifyRoles(ROLES_LIST.Editor), usersController.getAllUsers)
+  .get(verifyRoles(ROLES_LIST.Admin), usersController.getAllUsers)
   .post(verifyRoles(ROLES_LIST.Admin), usersController.deleteUser)
+
+router.route("/:id").get(verifyRoles(ROLES_LIST.Admin), usersController.getUser)
 
 module.exports = router
