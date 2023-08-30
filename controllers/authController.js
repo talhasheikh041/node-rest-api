@@ -17,7 +17,7 @@ const handleLogin = async (req, res) => {
   const match = await bcrypt.compare(pwd, foundUser.password)
 
   if (match) {
-    const roles = Object.values(foundUser.roles)
+    const roles = Object.values(foundUser.roles).filter(Boolean)
     // create JWTs
     const accessToken = jwt.sign(
       {
@@ -27,7 +27,7 @@ const handleLogin = async (req, res) => {
         },
       },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "2m" }
+      { expiresIn: "10s" }
     )
     const refreshToken = jwt.sign(
       { username: foundUser.username },
@@ -45,8 +45,9 @@ const handleLogin = async (req, res) => {
       httpOnly: true,
       sameSite: "None",
       maxAge: 24 * 60 * 60 * 1000,
+      secure: true,
     }) // secure: true - serves in https not on thunder client
-    res.json({ accessToken })
+    res.json({ roles, accessToken })
   } else {
     res.sendStatus(401)
   }
