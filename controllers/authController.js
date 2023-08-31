@@ -3,6 +3,8 @@ const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 
 const handleLogin = async (req, res) => {
+  const cookies = req.cookies
+  console.log(`cookie avaliable at login: ${JSON.stringify(cookies)}`)
   const { user, pwd } = req.body
 
   if (!user || !pwd)
@@ -29,19 +31,41 @@ const handleLogin = async (req, res) => {
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: "10s" }
     )
-    const refreshToken = jwt.sign(
+    const newRefreshToken = jwt.sign(
       { username: foundUser.username },
       process.env.REFRESH_TOKEN_SECRET,
       { expiresIn: "1d" }
     )
 
+    let newRefreshTokenArray = !cookies.jwt
+      ? foundUser.refreshToken
+      : foundUser.refreshToken.filter((rT) => rT !== cookies.jwt)
+
+    if (cookies?.jwt) {
+      /*
+        Scenario added here:
+          1) User logs in but never uses the refresh token and logs out
+          2) RT is stolen
+          3) If 1 & 2, reuse detection is needed to clear all RTs when user logs in.
+      */
+      const refreshToken = cookies.jwt
+      const foundToken = await User.findOne({ refreshToken }).exec()
+
+      if (!foundToken) {
+        console.log("attempted refresh token reuse at login!")
+        newRefreshTokenArray = []
+      }
+
+      res.clearCookie("jwt", { httpOnly: true, sameSite: "None", secure: true }) // secure: true - only serves on https
+    }
+
     // Saving refreshToken with current user
-    foundUser.refreshToken = refreshToken
+    foundUser.refreshToken = [...newRefreshTokenArray, newRefreshToken]
     const result = await foundUser.save()
 
     console.log(result)
 
-    res.cookie("jwt", refreshToken, {
+    res.cookie("jwt", newRefreshToken, {
       httpOnly: true,
       sameSite: "None",
       maxAge: 24 * 60 * 60 * 1000,
